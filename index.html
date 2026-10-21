@@ -8,6 +8,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Abysses">
 <meta name="theme-color" content="#2a7fb0">
+<script>if(navigator.standalone===true||matchMedia('(display-mode: standalone)').matches)document.documentElement.classList.add('standalone')</script>
 <title>Abysses</title>
 <link rel="manifest" href="./manifest.json">
 <link rel="apple-touch-icon" href="./icon-180.png">
@@ -22,15 +23,17 @@
   --spring:cubic-bezier(.34,1.36,.5,1);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
-html{background:#c2a272}
-:root{--appH:100%;--gap:0px}
-html,body{height:100%;color:var(--text);font-family:var(--font);overflow:hidden;
+html{background:#2a7fb0}
+:root{--appH:100vh;--gap:0px}
+@supports (height:100dvh){:root{--appH:100dvh}}
+html.standalone{--appH:100vh}
+html,body{height:var(--appH);margin:0;color:var(--text);font-family:var(--font);overflow:hidden;
   -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;overscroll-behavior:none}
-body{position:fixed;inset:0;touch-action:manipulation;background:transparent}
+body{position:relative;touch-action:manipulation;background:transparent}
 #app{background:var(--deep)}
 button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;touch-action:manipulation}
 button:focus-visible{outline:2px solid var(--glass);outline-offset:2px}
-#app{position:fixed;top:0;left:0;right:0;height:var(--appH);overflow:hidden}
+#app{position:absolute;top:0;left:0;width:100%;height:var(--appH);overflow:hidden}
 
 /* Verre liquide */
 .lg{position:relative;isolation:isolate;background:rgba(18,44,54,.34);-webkit-backdrop-filter:blur(20px) saturate(185%);backdrop-filter:blur(20px) saturate(185%);
@@ -70,7 +73,9 @@ main{position:absolute;inset:0;z-index:2;pointer-events:none}
   box-shadow:inset 0 1px 0 rgba(255,255,255,.35),inset 0 0 0 .5px rgba(255,255,255,.18);transform:translateX(calc(var(--i,0) * 100%));transition:transform .45s var(--spring)}
 #tabs button{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--muted);font-size:10.5px;font-weight:700;border-radius:28px}
 #tabs svg{width:25px;height:25px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;transition:transform .3s var(--spring)}
-#tabs button.on{color:#fff}
+#tabs button.on,#tabs button.hov{color:#fff}
+#tabs{touch-action:none}
+#tabs .ind.drag{transition:transform .12s ease-out,background .2s;background:rgba(255,255,255,.26);box-shadow:inset 0 1px 0 rgba(255,255,255,.55),inset 0 0 0 .5px rgba(255,255,255,.35),0 6px 20px rgba(0,0,0,.25)}
 #tabs button.on svg{stroke:var(--glass);transform:scale(1.08)}
 #tabs button:active svg{transform:scale(.88)}
 
@@ -166,9 +171,9 @@ h3{font-size:20px;font-weight:800;margin:26px 0 8px;letter-spacing:-.01em}
 .vs{text-align:center;font-weight:800;color:var(--muted);margin-top:12px;font-size:14px}
 
 /* Feuille */
-#veil{position:fixed;top:0;left:0;right:0;height:var(--appH);background:rgba(2,9,12,.45);opacity:0;pointer-events:none;transition:opacity .25s;z-index:20}
+#veil{position:absolute;top:0;left:0;right:0;height:var(--appH);background:rgba(2,9,12,.45);opacity:0;pointer-events:none;transition:opacity .25s;z-index:20}
 #veil.on{opacity:1;pointer-events:auto}
-#sheet{position:fixed;left:8px;right:8px;bottom:calc(var(--sab) + 8px - var(--gap));max-height:calc(var(--appH) - var(--sat) - var(--sab) - 40px);border-radius:34px;z-index:21;
+#sheet{position:absolute;left:8px;right:8px;bottom:calc(var(--sab) + 8px);max-height:calc(var(--appH) - var(--sat) - var(--sab) - 40px);border-radius:34px;z-index:21;
   background:rgba(14,36,44,.72);transform:translateY(calc(100% + 40px));transition:transform .45s var(--spring);display:flex;flex-direction:column;overflow:hidden}
 #sheet.on{transform:none}
 #sheet .grab{width:38px;height:5px;border-radius:3px;background:rgba(255,255,255,.3);margin:8px auto 2px;flex:none;position:relative;z-index:1}
@@ -194,7 +199,7 @@ h3{font-size:20px;font-weight:800;margin:26px 0 8px;letter-spacing:-.01em}
 .empty{padding:28px 10px;text-align:center;color:var(--muted);font-size:14px;line-height:1.5}
 
 /* Révélation */
-#reveal{position:fixed;top:0;left:0;right:0;height:var(--appH);z-index:30;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(2,9,12,.5);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+#reveal{position:absolute;top:0;left:0;right:0;height:var(--appH);z-index:30;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(2,9,12,.5);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
 #reveal.on{display:flex}
 .rv{width:100%;max-width:380px;background:rgba(14,36,44,.78);border-radius:36px;overflow:hidden;animation:pop .5s var(--spring);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.35),inset 0 0 0 .5px rgba(255,255,255,.2),0 20px 60px rgba(0,0,0,.5)}
@@ -209,7 +214,7 @@ h3{font-size:20px;font-weight:800;margin:26px 0 8px;letter-spacing:-.01em}
 .rv-act .btn{flex:1}
 
 /* Arène */
-#arena{position:fixed;top:0;left:0;right:0;height:var(--appH);z-index:40;display:none;background:#02090c}
+#arena{position:absolute;top:0;left:0;right:0;height:var(--appH);z-index:40;display:none;background:#02090c}
 #arena.on{display:block}
 .ar-top{position:absolute;top:calc(var(--sat) + 6px);left:12px;right:12px;display:flex;gap:10px;align-items:center;z-index:2;border-radius:28px;padding:6px 6px 6px 16px}
 .ar-top > *{position:relative;z-index:1}
@@ -223,7 +228,7 @@ h3{font-size:20px;font-weight:800;margin:26px 0 8px;letter-spacing:-.01em}
 .ar-res > *{position:relative;z-index:1}
 .ar-res .w{font-size:26px;font-weight:800}
 
-#toast{position:fixed;top:calc(var(--sat) + 66px);left:50%;transform:translate(-50%,-16px) scale(.92);opacity:0;color:#fff;
+#toast{position:absolute;top:calc(var(--sat) + 66px);left:50%;transform:translate(-50%,-16px) scale(.92);opacity:0;color:#fff;
   padding:12px 18px;border-radius:22px;font-weight:700;font-size:14px;z-index:50;transition:all .4s var(--spring);pointer-events:none;max-width:88%;text-align:center}
 #toast.on{opacity:1;transform:translate(-50%,0) scale(1)}
 .foot{margin-top:28px;padding-top:16px;border-top:.5px solid rgba(255,255,255,.12)}
@@ -701,10 +706,6 @@ class Scene{
 function fishLen(sp,W){return clamp(W*.15*sp.v.scale*RAR[sp.ri].size,40,140)}
 function mkSwimmer(sp,sc,x,y){const W=sc.W,H=sc.H;return{sp,x:x??Math.random()*W,y:y??H*(.12+Math.random()*.6),tx:0,ty:0,vx:0,vy:0,face:Math.random()<.5?-1:1,
   len:fishLen(sp,W),spd:(28+Math.random()*24)*(sp.v.shape==='arrow'?1.5:sp.v.shape==='round'?.6:1),at:Math.random()*10,timer:0}}
-function fixHeight(){const app=navigator.standalone===true||matchMedia('(display-mode: standalone)').matches;let h=innerHeight;
-  if(app&&innerWidth<innerHeight){h=Math.max(innerHeight,screen.height)}
-  const r=document.documentElement.style;r.setProperty('--appH',h+'px');r.setProperty('--gap',Math.max(0,h-innerHeight)+'px')}
-fixHeight();
 const SAFE={t:0,b:0};function readSafe(){const p=getComputedStyle($('#probe'));SAFE.t=parseFloat(p.paddingTop)||0;SAFE.b=parseFloat(p.paddingBottom)||0}
 function yMin(f,sc){return(sc.padTop||0)+f.len*.3}function yMax(f,sc){return Math.min(sc.floor-f.len*.35,sc.H-(sc.padBot||0)-f.len*.3)}
 function retarget(f,sc){const m=f.len*.7;f.tx=m+Math.random()*(sc.W-2*m);const a=yMin(f,sc),b=Math.max(a+10,yMax(f,sc)-f.len*.1);f.ty=a+Math.random()*(b-a);f.timer=4+Math.random()*6}
@@ -755,11 +756,21 @@ const UPG=[
 ];
 
 /* ---------- UI de base ---------- */
-let view='aqua';
+let view='aqua';const TABS=['aqua','shop','cat','sand','fight'];
 const toastEl=$('#toast');let toastT;
 function toast(m){toastEl.textContent=m;toastEl.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>toastEl.classList.remove('on'),2200)}
-document.querySelectorAll('#tabs button').forEach(b=>b.addEventListener('click',()=>go(b.dataset.v)));
-const TABS=['aqua','shop','cat','sand','fight'];
+document.querySelectorAll('#tabs button').forEach(b=>b.addEventListener('click',e=>{if(e.detail===0)go(b.dataset.v)}));
+(function tabDrag(){
+  const bar=$('#tabs'),ind=bar.querySelector('.ind'),btns=[...bar.querySelectorAll('button')];let drag=null;
+  const geo=()=>{const r=bar.getBoundingClientRect();const w=(r.width-10)/5;return{r,w}};
+  const place=x=>{const{r,w}=geo();const off=clamp(x-r.left-5-w/2,0,w*4);ind.style.transform=`translateX(${off}px) scale(1.12)`;
+    const i=Math.round(off/w);btns.forEach((b,k)=>b.classList.toggle('hov',k===i));return i};
+  bar.addEventListener('pointerdown',e=>{e.preventDefault();bar.setPointerCapture(e.pointerId);drag={x0:e.clientX,moved:false,i:0};
+    ind.classList.add('drag');drag.i=place(e.clientX)});
+  bar.addEventListener('pointermove',e=>{if(!drag)return;if(Math.abs(e.clientX-drag.x0)>4)drag.moved=true;drag.i=place(e.clientX)});
+  const end=e=>{if(!drag)return;const i=drag.i;drag=null;ind.classList.remove('drag');ind.style.transform='';btns.forEach(b=>b.classList.remove('hov'));go(TABS[i])};
+  bar.addEventListener('pointerup',end);bar.addEventListener('pointercancel',end);
+})();
 function go(v){view=v;document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));$('#tabs').style.setProperty('--i',TABS.indexOf(v));$('#dim').classList.toggle('on',v==='shop'||v==='cat'||v==='fight');
   document.querySelectorAll('.view').forEach(s=>s.classList.toggle('on',s.id==='v-'+v));
   if(v==='shop')renderShop();if(v==='cat')renderCat();if(v==='sand')openSand();if(v==='fight')renderFight();
@@ -1046,7 +1057,7 @@ else{const away=Math.min(8*3600,(Date.now()-S.last)/1000);const g=baseIncome()*a
 S.teams.a=S.teams.a||[];S.teams.b=S.teams.b||[];
 requestAnimationFrame(()=>{tankScene.resize();syncSwimmers();hud(true)});
 if(!had)setTimeout(()=>toast('Touche l’eau pour gagner des pièces'),700);
-addEventListener('resize',()=>{fixHeight();setTimeout(()=>{tankScene.resize();sandScene&&sandScene.resize();arScene&&arScene.resize();for(const s of swimmers)s.len=fishLen(s.sp,tankScene.W)},100)});
+addEventListener('resize',()=>{setTimeout(()=>{tankScene.resize();sandScene&&sandScene.resize();arScene&&arScene.resize();for(const s of swimmers)s.len=fishLen(s.sp,tankScene.W)},100)});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)save();else{lastT=performance.now()}});
 addEventListener('pagehide',save);
 requestAnimationFrame(frame);
