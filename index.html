@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Espresso</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Espresso">
+<meta name="theme-color" content="#24150e">
+<style>
+:root{
+  --bg:#24150e; --surface:#33201a; --line:#4a3026;
+  --text:#f3e2cc; --muted:#b9997d; --accent:#7fd6bf; --accent-ink:#10261f;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: light){
+  :root{--bg:#f6e9d8;--surface:#ecd8bf;--line:#d9bfa0;--text:#2b1810;--muted:#7a5a44;--accent:#1f8a72;--accent-ink:#ffffff;color-scheme:light}
+}
+*{box-sizing:border-box;margin:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:ui-rounded,"SF Pro Rounded",system-ui,-apple-system,"Segoe UI",sans-serif;
+  padding:env(safe-area-inset-top) 20px env(safe-area-inset-bottom);
+  display:flex;flex-direction:column;user-select:none;-webkit-user-select:none;
+  overscroll-behavior:none;
+}
+header{text-align:center;padding-top:28px}
+#count{font-size:clamp(3rem,16vw,5rem);font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums;line-height:1}
+#rate{color:var(--muted);margin-top:6px;font-size:1rem}
+main{flex:1;display:grid;place-items:center;position:relative;min-height:240px}
+#cup{
+  width:min(62vw,260px);aspect-ratio:1;border:none;background:none;padding:0;cursor:pointer;
+  transition:transform .08s ease;touch-action:manipulation;
+}
+#cup:active{transform:scale(.92)}
+#cup:focus-visible{outline:3px solid var(--accent);outline-offset:8px;border-radius:50%}
+#cup svg{width:100%;height:100%;display:block}
+.pop{position:absolute;font-weight:800;font-size:1.4rem;color:var(--accent);pointer-events:none;animation:up .8s ease-out forwards}
+@keyframes up{to{transform:translateY(-70px);opacity:0}}
+@media (prefers-reduced-motion: reduce){.pop{animation-duration:.01s}#cup{transition:none}}
+section{padding-bottom:16px}
+h2{font-size:1rem;font-weight:700;color:var(--muted);margin:0 4px 10px}
+.shop{display:flex;flex-direction:column;gap:8px}
+.item{
+  display:flex;align-items:center;gap:12px;width:100%;text-align:left;
+  background:var(--surface);color:var(--text);border:1px solid var(--line);
+  border-radius:16px;padding:12px 14px;font:inherit;cursor:pointer;
+}
+.item:disabled{opacity:.45}
+.item:not(:disabled):active{transform:scale(.98)}
+.item .ico{font-size:1.6rem}
+.item .info{flex:1}
+.item .name{font-weight:700}
+.item .desc{color:var(--muted);font-size:.85rem}
+.item .price{background:var(--accent);color:var(--accent-ink);font-weight:800;border-radius:999px;padding:6px 12px;font-variant-numeric:tabular-nums;white-space:nowrap}
+#reset{display:block;margin:14px auto 4px;background:none;border:none;color:var(--muted);font:inherit;font-size:.85rem;text-decoration:underline;cursor:pointer}
+</style>
+</head>
+<body>
+<header>
+  <div id="count">0</div>
+  <p id="rate">grains de café</p>
+</header>
+
+<main id="stage">
+  <button id="cup" aria-label="Préparer un café">
+    <svg viewBox="0 0 200 200" aria-hidden="true">
+      <ellipse cx="100" cy="168" rx="78" ry="14" fill="#000" opacity=".18"/>
+      <path d="M150 92c22 0 30 12 30 24s-10 26-34 26" fill="none" stroke="#efe4d6" stroke-width="12" stroke-linecap="round"/>
+      <path d="M30 70h124l-10 70a28 28 0 0 1-28 24H68a28 28 0 0 1-28-24z" fill="#efe4d6"/>
+      <ellipse cx="92" cy="72" rx="62" ry="12" fill="#5a3322"/>
+      <ellipse cx="92" cy="72" rx="44" ry="7" fill="#c98f5c"/>
+      <path d="M78 52c-8-10 8-16 0-28M100 50c-8-10 8-16 0-28M122 52c-8-10 8-16 0-28" fill="none" stroke="var(--muted)" stroke-width="5" stroke-linecap="round" opacity=".7"/>
+    </svg>
+  </button>
+</main>
+
+<section>
+  <h2>Améliorations</h2>
+  <div class="shop" id="shop"></div>
+  <button id="reset">Recommencer à zéro</button>
+</section>
+
+<script>
+const UPGRADES = [
+  {id:'moulin',  ico:'⚙️', name:'Moulin',     desc:'+1 grain par tap',   base:15,   click:1},
+  {id:'machine', ico:'☕️', name:'Machine',    desc:'+1 grain / seconde', base:50,   auto:1},
+  {id:'barista', ico:'🧑‍🍳', name:'Barista',    desc:'+8 grains / seconde', base:400,  auto:8},
+  {id:'torref',  ico:'🔥', name:'Torréfacteur', desc:'+50 grains / seconde', base:3000, auto:50},
+];
+const KEY = 'espresso-save-v1';
+let s = {grains:0, owned:{}};
+try { const d = JSON.parse(localStorage.getItem(KEY)); if (d) s = d; } catch(e){}
+
+const $ = id => document.getElementById(id);
+const fmt = n => n < 1000 ? Math.floor(n).toString()
+  : n < 1e6 ? (n/1e3).toFixed(1).replace('.0','') + ' k'
+  : (n/1e6).toFixed(2).replace(/\.?0+$/,'') + ' M';
+const owned = id => s.owned[id] || 0;
+const price = u => Math.ceil(u.base * Math.pow(1.15, owned(u.id)));
+const perTap = () => 1 + UPGRADES.reduce((t,u)=>t+(u.click||0)*owned(u.id),0);
+const perSec = () => UPGRADES.reduce((t,u)=>t+(u.auto||0)*owned(u.id),0);
+
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(s)); }catch(e){} }
+
+function render(){
+  $('count').textContent = fmt(s.grains);
+  const ps = perSec();
+  $('rate').textContent = ps ? `grains de café · ${fmt(ps)}/s` : 'grains de café';
+  UPGRADES.forEach(u=>{
+    const b = $('u-'+u.id);
+    b.disabled = s.grains < price(u);
+    b.querySelector('.price').textContent = fmt(price(u));
+    b.querySelector('.name').textContent = u.name + (owned(u.id) ? ` ×${owned(u.id)}` : '');
+  });
+}
+
+UPGRADES.forEach(u=>{
+  const b = document.createElement('button');
+  b.className='item'; b.id='u-'+u.id;
+  b.innerHTML = `<span class="ico">${u.ico}</span><span class="info"><div class="name"></div><div class="desc">${u.desc}</div></span><span class="price"></span>`;
+  b.onclick = ()=>{ const p=price(u); if(s.grains>=p){ s.grains-=p; s.owned[u.id]=owned(u.id)+1; save(); render(); } };
+  $('shop').appendChild(b);
+});
+
+$('cup').addEventListener('pointerdown', e=>{
+  const n = perTap(); s.grains += n;
+  const r = $('stage').getBoundingClientRect();
+  const p = document.createElement('span');
+  p.className='pop'; p.textContent='+'+fmt(n);
+  p.style.left = ((e.clientX||r.width/2+r.left) - r.left - 12)+'px';
+  p.style.top  = ((e.clientY||r.height/2+r.top) - r.top - 20)+'px';
+  $('stage').appendChild(p); setTimeout(()=>p.remove(),800);
+  render();
+});
+
+$('reset').onclick = ()=>{ if(confirm('Effacer ta partie et recommencer ?')){ s={grains:0,owned:{}}; save(); render(); } };
+
+let last = performance.now();
+setInterval(()=>{ const now=performance.now(); s.grains += perSec()*(now-last)/1000; last=now; render(); }, 100);
+setInterval(save, 2000);
+document.addEventListener('visibilitychange', ()=>{ if(document.hidden) save(); });
+render();
+
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+</script>
+</body>
+</html>
