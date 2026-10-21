@@ -1,6 +1,6 @@
 // Service worker d'Abysses : cache-first, cache versionné.
 // Change CACHE_VERSION à chaque mise à jour du jeu pour forcer le rafraîchissement.
-const CACHE_VERSION = 'abysses-v3';
+const CACHE_VERSION = 'abysses-v5';
 const ASSETS = [
   './',
   './index.html',

@@ -7,7 +7,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Abysses">
-<meta name="theme-color" content="#0e2a33">
+<meta name="theme-color" content="#2a7fb0">
 <title>Abysses</title>
 <link rel="manifest" href="./manifest.json">
 <link rel="apple-touch-icon" href="./icon-180.png">
@@ -22,17 +22,20 @@
   --spring:cubic-bezier(.34,1.36,.5,1);
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
-html,body{height:100%;background:var(--deep);color:var(--text);font-family:var(--font);overflow:hidden;
+html{background:#c2a272}
+:root{--appH:100%;--gap:0px}
+html,body{height:100%;color:var(--text);font-family:var(--font);overflow:hidden;
   -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;overscroll-behavior:none}
-body{position:fixed;inset:0;touch-action:manipulation}
+body{position:fixed;inset:0;touch-action:manipulation;background:transparent}
+#app{background:var(--deep)}
 button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;touch-action:manipulation}
 button:focus-visible{outline:2px solid var(--glass);outline-offset:2px}
-#app{position:absolute;inset:0;overflow:hidden}
+#app{position:fixed;top:0;left:0;right:0;height:var(--appH);overflow:hidden}
 
 /* Verre liquide */
-.lg{position:relative;background:rgba(18,44,54,.34);-webkit-backdrop-filter:blur(20px) saturate(185%);backdrop-filter:blur(20px) saturate(185%);
+.lg{position:relative;isolation:isolate;background:rgba(18,44,54,.34);-webkit-backdrop-filter:blur(20px) saturate(185%);backdrop-filter:blur(20px) saturate(185%);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.42),inset 0 0 0 .5px rgba(255,255,255,.22),inset 0 -1px 1px rgba(255,255,255,.06),0 10px 32px rgba(0,10,16,.28)}
-.lg::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+.lg::after{content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;pointer-events:none;
   background:linear-gradient(160deg,rgba(255,255,255,.16),rgba(255,255,255,0) 38%,rgba(255,255,255,0) 70%,rgba(255,255,255,.07))}
 
 /* Fond plein écran */
@@ -163,9 +166,9 @@ h3{font-size:20px;font-weight:800;margin:26px 0 8px;letter-spacing:-.01em}
 .vs{text-align:center;font-weight:800;color:var(--muted);margin-top:12px;font-size:14px}
 
 /* Feuille */
-#veil{position:fixed;inset:0;background:rgba(2,9,12,.45);opacity:0;pointer-events:none;transition:opacity .25s;z-index:20}
+#veil{position:fixed;top:0;left:0;right:0;height:var(--appH);background:rgba(2,9,12,.45);opacity:0;pointer-events:none;transition:opacity .25s;z-index:20}
 #veil.on{opacity:1;pointer-events:auto}
-#sheet{position:fixed;left:8px;right:8px;bottom:calc(var(--sab) + 8px);max-height:calc(100% - var(--sat) - 40px);border-radius:34px;z-index:21;
+#sheet{position:fixed;left:8px;right:8px;bottom:calc(var(--sab) + 8px - var(--gap));max-height:calc(var(--appH) - var(--sat) - var(--sab) - 40px);border-radius:34px;z-index:21;
   background:rgba(14,36,44,.72);transform:translateY(calc(100% + 40px));transition:transform .45s var(--spring);display:flex;flex-direction:column;overflow:hidden}
 #sheet.on{transform:none}
 #sheet .grab{width:38px;height:5px;border-radius:3px;background:rgba(255,255,255,.3);margin:8px auto 2px;flex:none;position:relative;z-index:1}
@@ -191,7 +194,7 @@ h3{font-size:20px;font-weight:800;margin:26px 0 8px;letter-spacing:-.01em}
 .empty{padding:28px 10px;text-align:center;color:var(--muted);font-size:14px;line-height:1.5}
 
 /* Révélation */
-#reveal{position:fixed;inset:0;z-index:30;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(2,9,12,.5);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+#reveal{position:fixed;top:0;left:0;right:0;height:var(--appH);z-index:30;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(2,9,12,.5);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
 #reveal.on{display:flex}
 .rv{width:100%;max-width:380px;background:rgba(14,36,44,.78);border-radius:36px;overflow:hidden;animation:pop .5s var(--spring);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.35),inset 0 0 0 .5px rgba(255,255,255,.2),0 20px 60px rgba(0,0,0,.5)}
@@ -206,7 +209,7 @@ h3{font-size:20px;font-weight:800;margin:26px 0 8px;letter-spacing:-.01em}
 .rv-act .btn{flex:1}
 
 /* Arène */
-#arena{position:fixed;inset:0;z-index:40;display:none;background:#02090c}
+#arena{position:fixed;top:0;left:0;right:0;height:var(--appH);z-index:40;display:none;background:#02090c}
 #arena.on{display:block}
 .ar-top{position:absolute;top:calc(var(--sat) + 6px);left:12px;right:12px;display:flex;gap:10px;align-items:center;z-index:2;border-radius:28px;padding:6px 6px 6px 16px}
 .ar-top > *{position:relative;z-index:1}
@@ -698,6 +701,10 @@ class Scene{
 function fishLen(sp,W){return clamp(W*.15*sp.v.scale*RAR[sp.ri].size,40,140)}
 function mkSwimmer(sp,sc,x,y){const W=sc.W,H=sc.H;return{sp,x:x??Math.random()*W,y:y??H*(.12+Math.random()*.6),tx:0,ty:0,vx:0,vy:0,face:Math.random()<.5?-1:1,
   len:fishLen(sp,W),spd:(28+Math.random()*24)*(sp.v.shape==='arrow'?1.5:sp.v.shape==='round'?.6:1),at:Math.random()*10,timer:0}}
+function fixHeight(){const app=navigator.standalone===true||matchMedia('(display-mode: standalone)').matches;let h=innerHeight;
+  if(app&&innerWidth<innerHeight){h=Math.max(innerHeight,screen.height)}
+  const r=document.documentElement.style;r.setProperty('--appH',h+'px');r.setProperty('--gap',Math.max(0,h-innerHeight)+'px')}
+fixHeight();
 const SAFE={t:0,b:0};function readSafe(){const p=getComputedStyle($('#probe'));SAFE.t=parseFloat(p.paddingTop)||0;SAFE.b=parseFloat(p.paddingBottom)||0}
 function yMin(f,sc){return(sc.padTop||0)+f.len*.3}function yMax(f,sc){return Math.min(sc.floor-f.len*.35,sc.H-(sc.padBot||0)-f.len*.3)}
 function retarget(f,sc){const m=f.len*.7;f.tx=m+Math.random()*(sc.W-2*m);const a=yMin(f,sc),b=Math.max(a+10,yMax(f,sc)-f.len*.1);f.ty=a+Math.random()*(b-a);f.timer=4+Math.random()*6}
@@ -1039,7 +1046,7 @@ else{const away=Math.min(8*3600,(Date.now()-S.last)/1000);const g=baseIncome()*a
 S.teams.a=S.teams.a||[];S.teams.b=S.teams.b||[];
 requestAnimationFrame(()=>{tankScene.resize();syncSwimmers();hud(true)});
 if(!had)setTimeout(()=>toast('Touche l’eau pour gagner des pièces'),700);
-addEventListener('resize',()=>{setTimeout(()=>{tankScene.resize();sandScene&&sandScene.resize();arScene&&arScene.resize();for(const s of swimmers)s.len=fishLen(s.sp,tankScene.W)},100)});
+addEventListener('resize',()=>{fixHeight();setTimeout(()=>{tankScene.resize();sandScene&&sandScene.resize();arScene&&arScene.resize();for(const s of swimmers)s.len=fishLen(s.sp,tankScene.W)},100)});
 document.addEventListener('visibilitychange',()=>{if(document.hidden)save();else{lastT=performance.now()}});
 addEventListener('pagehide',save);
 requestAnimationFrame(frame);
