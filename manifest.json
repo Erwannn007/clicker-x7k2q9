@@ -1,13 +1,17 @@
 {
-  "name": "Espresso Clicker",
-  "short_name": "Espresso",
+  "name": "Abysses — l’aquarium",
+  "short_name": "Abysses",
+  "description": "Gère ton aquarium, collectionne 500 espèces et fais-les combattre.",
+  "lang": "fr",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#24150e",
-  "theme_color": "#24150e",
+  "orientation": "portrait",
+  "background_color": "#0b222a",
+  "theme_color": "#0e2a33",
   "icons": [
-    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
+    { "src": "./icon-180.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
   ]
 }
